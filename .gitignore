@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+
+# Builds
+dist/
+build/
+*.tsbuildinfo
+
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+*.pem
+*.key
+firebase-sa*.json
+**/firebase-sa*.json
+secrets/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+firebase-sa.json
+
+# Test coverage
+coverage/
+
+# Docker
+mongo-data/
+redis-data/
+
+secrets/

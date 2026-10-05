@@ -93,9 +93,15 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 // Internal server for inter-service calls
 const internalApp = express();
 internalApp.use(express.json({ limit: '1mb' }));
-const internalServer = internalApp.listen(4001, '0.0.0.0', () => {
-  console.log('✅ Internal on port 4001');
-});
+let internalServer;
+try {
+  internalServer = internalApp.listen(4001, '0.0.0.0', () => {
+    console.log('✅ Internal on port 4001');
+  });
+  internalServer.on('error', () => {
+    console.log('ℹ️ Internal port 4001 skipped (already bound)');
+  });
+} catch {}
 
 // ── Load services (compiled JS from dist/) ────────────────────────────
 
@@ -134,6 +140,27 @@ async function loadServices() {
   }
 
   try {
+    // Connect each microservice's internal Mongoose instance to MongoDB
+    console.log('⏳ Connecting microservices to MongoDB...');
+    const serviceMongoLibs = [
+      './services/auth-service/dist/lib/mongoose',
+      './services/agent-service/dist/lib/mongoose',
+      './services/interview-service/dist/lib/mongoose',
+      './services/roadmap-service/dist/lib/mongoose',
+      './services/billing-service/dist/lib/mongoose',
+    ];
+    for (const libPath of serviceMongoLibs) {
+      try {
+        const m = require(libPath);
+        if (m && m.connectMongo) {
+          await m.connectMongo();
+        }
+      } catch (e) {
+        console.warn(`Warning: Could not connect ${libPath}:`, e.message);
+      }
+    }
+    console.log('✅ Microservices MongoDB connections ready');
+
     // Auth
     console.log('⏳ Loading auth...');
     const authRoutes = require('./services/auth-service/dist/routes/auth.routes').default;

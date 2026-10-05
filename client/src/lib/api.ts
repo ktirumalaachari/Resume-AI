@@ -44,6 +44,14 @@ export function apiErrorMessage(error: unknown): string {
       error.message
     )
   }
-  if (error instanceof Error) return error.message
+  if (error instanceof Error) {
+    if (error.message.includes('auth/popup-closed-by-user')) {
+      return 'Google sign-in window was closed before completing. If you did not close it, ensure this domain is added to Firebase Console under Authentication > Settings > Authorized domains.'
+    }
+    if (error.message.includes('auth/unauthorized-domain')) {
+      return 'This domain is not authorized in Firebase. Please add this domain in Firebase Console under Authentication > Settings > Authorized domains.'
+    }
+    return error.message
+  }
   return 'Something went wrong'
 }

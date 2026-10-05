@@ -6,18 +6,10 @@ dist/
 build/
 *.tsbuildinfo
 
-# Environment & Secrets
+# Environment
 .env
-.env.*
-!.env.example
-**/.env
-**/.env.*
-!**/.env.example
-*.pem
-*.key
-firebase-sa*.json
-**/firebase-sa*.json
-secrets/
+.env.local
+.env.*.local
 
 # Logs
 *.log

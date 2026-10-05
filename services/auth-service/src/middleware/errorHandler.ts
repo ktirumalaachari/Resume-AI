@@ -37,11 +37,9 @@ export function errorHandler(err: any, req: Request, res: Response, _next: NextF
     );
   }
 
-  const exposeMessage = statusCode < 500 || env.nodeEnv !== 'production';
-
   res.status(statusCode).json({
     success: false,
-    error: exposeMessage ? err.message : 'Internal server error',
+    error: err?.message || 'Unknown server error',
   });
 }
 

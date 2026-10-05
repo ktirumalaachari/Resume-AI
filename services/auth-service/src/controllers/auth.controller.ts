@@ -24,29 +24,37 @@ export async function createSessionController(req: Request, res: Response): Prom
   let decoded;
   try {
     decoded = await verifyFirebaseIdToken(idToken);
-  } catch {
-    throw new HttpError(401, 'Invalid or expired idToken');
-  }
-  if (!decoded.uid || !decoded.email) {
-    throw new HttpError(401, 'Invalid token payload');
+  } catch (err: any) {
+    throw new HttpError(401, `Invalid token: ${err.message}`);
   }
 
+  const uid = decoded?.uid || (decoded as any)?.sub;
+  if (!uid) {
+    throw new HttpError(401, 'Invalid token payload: missing uid');
+  }
+
+  const email = (decoded.email || `${uid}@user.local`).toLowerCase();
+
   const user = await User.findOneAndUpdate(
-    { firebaseUid: decoded.uid },
+    { firebaseUid: uid },
     {
       $set: {
-        email: decoded.email.toLowerCase(),
+        email,
         displayName: decoded.name ?? '',
         photoURL: decoded.picture ?? '',
-        provider: decoded.firebase?.sign_in_provider ?? 'firebase',
+        provider: (decoded.firebase as any)?.sign_in_provider ?? 'firebase',
       },
-      $setOnInsert: { firebaseUid: decoded.uid },
+      $setOnInsert: { firebaseUid: uid },
       $currentDate: { lastLoginAt: true },
     },
     { new: true, upsert: true, setDefaultsOnInsert: true }
   );
 
-  await createSession(decoded.uid);
+  if (!user) {
+    throw new HttpError(500, 'Database error: failed to create user record');
+  }
+
+  await createSession(uid);
 
   res.status(200).json({
     success: true,

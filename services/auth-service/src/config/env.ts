@@ -11,6 +11,15 @@ function required(key: string, fallback?: string): string {
   return value;
 }
 
+function cleanPrivateKey(key: string): string {
+  if (!key) return '';
+  let cleaned = key.trim();
+  if ((cleaned.startsWith('"') && cleaned.endsWith('"')) || (cleaned.startsWith("'") && cleaned.endsWith("'"))) {
+    cleaned = cleaned.slice(1, -1);
+  }
+  return cleaned.replace(/\\n/g, '\n');
+}
+
 const rawPrivateKey = process.env.FIREBASE_PRIVATE_KEY ?? '';
 
 export const env = {
@@ -26,6 +35,6 @@ export const env = {
     serviceAccountPath: process.env.FIREBASE_SERVICE_ACCOUNT_PATH || '',
     projectId: process.env.FIREBASE_PROJECT_ID || '',
     clientEmail: process.env.FIREBASE_CLIENT_EMAIL || '',
-    privateKey: rawPrivateKey ? rawPrivateKey.replace(/\\n/g, '\n') : '',
+    privateKey: cleanPrivateKey(rawPrivateKey),
   },
 } as const;

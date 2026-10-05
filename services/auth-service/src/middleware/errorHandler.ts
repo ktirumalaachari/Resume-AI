@@ -2,12 +2,14 @@ import { NextFunction, Request, Response } from 'express';
 import { env } from '../config/env';
 
 export class HttpError extends Error {
+  public readonly isHttpError = true;
   constructor(
     public readonly statusCode: number,
     message: string
   ) {
     super(message);
     this.name = 'HttpError';
+    Object.setPrototypeOf(this, HttpError.prototype);
   }
 }
 
@@ -18,8 +20,8 @@ export function notFoundHandler(req: Request, res: Response): void {
   });
 }
 
-export function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction): void {
-  const statusCode = err instanceof HttpError ? err.statusCode : 500;
+export function errorHandler(err: any, req: Request, res: Response, _next: NextFunction): void {
+  const statusCode = err?.statusCode || (err instanceof HttpError ? err.statusCode : 500);
 
   if (statusCode >= 500) {
     console.error(

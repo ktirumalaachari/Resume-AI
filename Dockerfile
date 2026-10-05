@@ -1,5 +1,8 @@
 FROM node:20-slim
 
+# Install redis-server for local session caching
+RUN apt-get update && apt-get install -y --no-install-recommends redis-server && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 # ── Copy all package.json files ──

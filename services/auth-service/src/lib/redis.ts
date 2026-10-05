@@ -2,11 +2,12 @@ import Redis from 'ioredis';
 import { env } from '../config/env';
 
 export const redis = new Redis(env.redisUrl, {
-  maxRetriesPerRequest: 2,
+  maxRetriesPerRequest: 1,
   retryStrategy(times) {
-    return Math.min(times * 500, 5000);
+    if (times > 3) return null;
+    return Math.min(times * 500, 2000);
   },
-  lazyConnect: false,
+  lazyConnect: true,
 });
 
 redis.on('error', (err) => {

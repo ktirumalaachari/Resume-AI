@@ -41,9 +41,15 @@ app.post('/api/v1/billing/webhook/razorpay', express.raw({ type: 'application/js
 
 // API placeholder while services load
 let routesReady = false;
+let loadError = null;
+
 app.use('/api/*', (_req, res, next) => {
   if (routesReady) return next();
-  res.status(503).json({ success: false, error: 'Service starting up, try again in 5 seconds' });
+  res.status(503).json({
+    success: false,
+    error: 'Service starting up, try again in 5 seconds',
+    details: loadError ? `Initialization error: ${loadError}` : 'Services loading',
+  });
 });
 
 // Health check — IMMEDIATE
@@ -54,6 +60,8 @@ app.get('/health', (_req, res) => {
       service: 'combined-server',
       status: 'ok',
       uptime: process.uptime(),
+      routesReady,
+      loadError,
       mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
     },
   });
@@ -101,13 +109,28 @@ async function loadServices() {
     return;
   }
 
+  // Try starting background redis-server if installed
   try {
-    const redisClient = createClient({ url: REDIS_URL });
+    const { exec } = require('child_process');
+    exec('redis-server --daemonize yes --protected-mode no', () => {});
+  } catch {}
+
+  try {
+    const redisClient = createClient({
+      url: REDIS_URL,
+      socket: {
+        connectTimeout: 2000,
+        reconnectStrategy: false,
+      },
+    });
     redisClient.on('error', () => {});
-    await redisClient.connect();
+    await Promise.race([
+      redisClient.connect(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Redis timeout')), 2500)),
+    ]);
     console.log('✅ Redis connected');
   } catch {
-    console.log('⚠️  Redis unavailable');
+    console.log('⚠️  Redis unavailable — in-memory fallback active');
   }
 
   try {
@@ -166,12 +189,14 @@ async function loadServices() {
 
     console.log('\n✅ All services loaded!\n');
   } catch (err) {
+    loadError = err.message;
     console.error('❌ Failed to load services:', err.message);
     console.error(err.stack);
   }
 }
 
 loadServices().catch((err) => {
+  loadError = err.message;
   console.error('❌ Failed to load:', err.message);
 });
 

@@ -2,8 +2,21 @@ import axios from 'axios'
 import { signOut } from 'firebase/auth'
 import { firebaseAuth } from './firebase'
 
+function resolveBaseUrl(): string {
+  const envUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim()
+  if (!envUrl) return 'http://localhost:4000/api/v1'
+  const trimmed = envUrl.replace(/\/+$/, '')
+  if (!trimmed.endsWith('/api/v1')) {
+    if (trimmed.endsWith('/api')) {
+      return `${trimmed}/v1`
+    }
+    return `${trimmed}/api/v1`
+  }
+  return trimmed
+}
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4000/api/v1',
+  baseURL: resolveBaseUrl(),
   timeout: 180_000,
 })
 

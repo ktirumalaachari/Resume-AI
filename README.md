@@ -311,10 +311,31 @@ In **Firebase Console** $\rightarrow$ **Authentication** $\rightarrow$ **Setting
 Distributed under the **MIT License**. See `LICENSE` for more details.
 
 ---
+## 👨‍💻 Author & Connect
 
-<div align="center">
-  <p>Built with ❤️ by passionate engineers.</p>
-  <p>
-    <a href="#resumeai--next-gen-ai-career-copilot--resume-platform">Back to Top ↑</a>
-  </p>
+**K Tirumala Achari**  
+Full Stack Developer | Aspiring Software Engineer
+
+<a href="mailto:ktirumalachari@gmail.com">
+  <img src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Gmail"/>
+</a>
+<a href="https://www.linkedin.com/in/k-tirumala-achari-921106307/">
+  <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/>
+</a>
+<a href="https://github.com/ktirumalaachari">
+  <img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/>
+</a>
+<a href="https://www.ktirumalaachari.me">
+  <img src="https://img.shields.io/badge/Portfolio-FF6B35?style=for-the-badge&logo=firefox&logoColor=white" alt="Portfolio"/>
+</a>
+<br/><br/>
+
+> _"Passionate about building impactful, user-centric solutions through technology,_
+> _committed to continuous learning and innovation."_
+
+**⭐ If you found this project helpful or inspiring, please give it a star! ⭐**
+Made with ❤️ by **K Tirumala Achari**
+
+[![GitHub](https://img.shields.io/badge/GitHub-ktirumalaachari-blue?style=flat&logo=github)](https://github.com/ktirumalaachari)
+
 </div>

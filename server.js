@@ -25,6 +25,17 @@ process.env.REDIS_URL = REDIS_URL;
 process.env.CLIENT_ORIGIN = CLIENT_ORIGIN;
 process.env.SESSION_TTL_SECONDS = process.env.SESSION_TTL_SECONDS || '604800';
 
+// Clean and auto-configure LLM environment variables (Groq / OpenAI)
+const rawOpenaiKey = (process.env.OPENAI_API_KEY || '').trim().replace(/^["']|["']$/g, '');
+const isGroqKey = rawOpenaiKey.startsWith('gsk_');
+process.env.OPENAI_API_KEY = rawOpenaiKey;
+if (!process.env.OPENAI_BASE_URL && isGroqKey) {
+  process.env.OPENAI_BASE_URL = 'https://api.groq.com/openai/v1';
+}
+if (!process.env.OPENAI_MODEL) {
+  process.env.OPENAI_MODEL = isGroqKey ? 'openai/gpt-oss-120b' : 'gpt-4o-mini';
+}
+
 const app = express();
 app.disable('x-powered-by');
 app.set('trust proxy', 1);

@@ -25,6 +25,18 @@ process.env.REDIS_URL = REDIS_URL;
 process.env.CLIENT_ORIGIN = CLIENT_ORIGIN;
 process.env.SESSION_TTL_SECONDS = process.env.SESSION_TTL_SECONDS || '604800';
 
+function cleanModelName(model, isGroq) {
+  if (!model) return isGroq ? 'openai/gpt-oss-120b' : 'gpt-4o-mini';
+  const trimmed = model.trim().replace(/^["']|["']$/g, '');
+  if (trimmed.includes('openai/gpt-oss-120b')) return 'openai/gpt-oss-120b';
+  if (trimmed.includes('gpt-4o-mini')) return 'gpt-4o-mini';
+  if (trimmed.includes('llama')) {
+    const match = trimmed.match(/llama[a-zA-Z0-9_.-]*/);
+    if (match) return match[0];
+  }
+  return trimmed;
+}
+
 // Clean and auto-configure LLM environment variables (Groq / OpenAI)
 const rawOpenaiKey = (process.env.OPENAI_API_KEY || '').trim().replace(/^["']|["']$/g, '');
 const isGroqKey = rawOpenaiKey.startsWith('gsk_');
@@ -32,9 +44,7 @@ process.env.OPENAI_API_KEY = rawOpenaiKey;
 if (!process.env.OPENAI_BASE_URL && isGroqKey) {
   process.env.OPENAI_BASE_URL = 'https://api.groq.com/openai/v1';
 }
-if (!process.env.OPENAI_MODEL) {
-  process.env.OPENAI_MODEL = isGroqKey ? 'openai/gpt-oss-120b' : 'gpt-4o-mini';
-}
+process.env.OPENAI_MODEL = cleanModelName(process.env.OPENAI_MODEL, isGroqKey);
 
 const app = express();
 app.disable('x-powered-by');
